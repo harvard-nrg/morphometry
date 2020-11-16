@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pillow = "*"
+lxml = "*"
+pydicom = "*"
+yaxil = "*" 
+nibabel = "*"
+pyaml = ">=4.2b1"
+natsort = "*"
+retry = "*"
+matplotlib = "*"
+morphometry = {path = ".",editable = true}
