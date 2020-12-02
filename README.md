@@ -25,7 +25,7 @@ pip install morphometry
 ```
 
 ## Basic usage
-For the most basic functionality, just pass in a NIfTI-1 formatted image using 
+For the most basic functionality, just pass in a NIFTI formatted image using 
 the `--input` argument
 
 ```bash
@@ -40,7 +40,9 @@ surpher.py --input /path/to/dicoms ...
 ```
 
 ### xnat
-You can also ask `surpher.py` to download your imaging data from an XNAT 
+> Note that this section assumes you're familiar with [yaxil](https://github.com/harvard-nrg/yaxil)
+
+You can tell `surpher.py` to download your imaging data from an XNAT 
 installation
 
 ```bash
@@ -50,15 +52,17 @@ surpher.py --input xnat --xnat TheXNAT:TheProject:TheSession:19 ...
 ## Advanced usage
 The following section explains more advanced functionality.
 
-### rate limiting environments
+### rate limited environments
 Within HPC environments, you may be asked to rate limit your FreeSurfer jobs to 
-reduce stress on networked file systems. To address this, you can tell `surpher.py` 
-to run the main reconstruction pipeline on a local `--scratch` partition and move 
-the results to `--output-dir`
+reduce read/write stress on network attached storage. To help with this, you can 
+tell `surpher.py` to run the main reconstruction pipeline on a local `--scratch`
+partition and move the results to the specified `--output-dir`
 
 ```bash
 surpher.py --input image.dcm --scratch /scratch --output-dir /path/to/output ...
 ```
+
+This way you can run as many as you want... within reason.
 
 ### logging
 Log files for all subprocesses are stored separately within the `logs` 
@@ -71,20 +75,18 @@ snapshots are stored in the `morphometrics/snapshots` directory.
 
 > Headless snapshot support requires `xvfb-run`
 
-## laterality plots
-For quality assessment, Left versus Right laterality plots are generated and 
-stored under `morphometrics/plots`.
+### laterality plots
+For quality assessment, left-hemisphere versus right-hemisphere laterality plots are 
+generated and stored under `morphometrics/plots`.
 
-### automatic parsing and re-formatting
-Commonly needed output e.g., `aseg.stats`, `*.aparc.stats`, `wmsnr.e3.dat`, are 
-automatically parsed and reformatted as JSON within the `morphometrics/stats` 
-directory.
+### automatic parsing and re-formatting of (some) output files
+Commonly used output files e.g., `aseg.stats`, `*.aparc.stats`, `wmsnr.e3.dat`, are 
+automatically parsed and reformatted as JSON and stored under `morphometrics/stats`.
 
 ## Developers
-For debugging, you may want to run only certain steps of the pipeline using the 
-`--steps` argument
+For debugging, you may want to run certain steps of the pipeline, which you can 
+do using the `--steps` argument
 
 ```bash
 surpher.py --input image.dcm --steps tal_qc parse snapshots ...
 ```
-
