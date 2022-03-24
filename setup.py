@@ -11,7 +11,8 @@ requires = [
     'nibabel',
     'yaxil',
     'retry',
-    'natsort'
+    'natsort',
+    'matplotlib'
 ]
 
 about = dict()
