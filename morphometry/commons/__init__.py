@@ -7,11 +7,14 @@ import select
 import socket
 import base64
 import hashlib
+import logging
 import getpass as gp
 import datetime as dt
 import nibabel as nib
 import subprocess as sp
 import collections as col
+
+logger = logging.getLogger(__name__)
 
 yaml.SafeDumper.add_representer(col.OrderedDict, yaml.representer.SafeRepresenter.represent_dict)
 
@@ -87,6 +90,18 @@ def get(module, name, version):
 def dimlen(input, dim):
     input = nib.load(input)
     return input.shape[dim]
+
+def check_fov(inputs):
+    for f in inputs:
+        # load file and get field-of-view along each dimension
+        nii = nib.load(str(f))
+        fovs = (nii.header['dim'] * nii.header['pixdim'])[1:4]
+        logger.info(f'{f} has field-of-view {fovs}')
+        # return True if any field of view is > 256
+        if any(i > 256.0 for i in fovs):
+            logger.info(f'detected a field-of-view > 256.0')
+            return True
+    return False
 
 def check_submillimeter(inputs):
     for f in inputs:

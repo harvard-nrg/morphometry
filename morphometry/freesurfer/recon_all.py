@@ -6,6 +6,7 @@ from .. import commons
 import subprocess as sp
 
 logger = logging.getLogger(__name__)
+
 this = sys.modules[__name__]
 
 def get(version):
@@ -32,10 +33,15 @@ def recon_all_362e302e30(input, output, log,  **kwargs):
         cmd.extend([
             '-custom-tal-atlas', kwargs.get('custom_tal_atlas')
         ])
+    if kwargs.get('cw256', False):
+        cmd.append('-cw256')
     if kwargs.get('motioncor', False):
         cmd.append('-motioncor')
     if kwargs.get('hires', False):
-        cmd.append('-cm')
+        if not kwargs.get('cw256', False):
+            cmd.append('-cm')
+        else:
+            logger.warning('recon-all does not support passing -cm and -cw256 together')
     for image in input:
         cmd.extend([
             '-i', str(image)

@@ -1,4 +1,4 @@
-#!/users/nrgadmin/.local/share/virtualenvs/morphometrics3-55gu5sb3/bin/python
+#!/usr/bin/env python
 
 import os
 import re
@@ -205,11 +205,13 @@ def main():
         logger.info('running recon-all')
         log_prefix = os.path.join(logs_dir, 'recon_all')
         recon_all = fs.recon_all.get(Version.FreeSurfer)
+        cw256 = commons.check_fov(anats)
         # motioncor = True if len(anats) > 1 else False
         motioncor = False
         submillimeter = False
         if not args.no_hires:
             submillimeter = commons.check_submillimeter(anats)
+        logger.info('crop width to 256 flag is %s', cw256)
         logger.info('motion correction flag is %s', motioncor)
         logger.info('submillimeter flag is %s', submillimeter)
         recon_all(
@@ -218,6 +220,7 @@ def main():
             log_prefix,
             motioncor=motioncor,
             hires=submillimeter,
+            cw256=cw256,
             custom_tal_atlas=args.custom_tal_atlas
         )
     
