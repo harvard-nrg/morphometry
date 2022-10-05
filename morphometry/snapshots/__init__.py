@@ -85,9 +85,11 @@ class Snapshotter(object):
             w,h = self._maxsize(expr)
         else:
             w,h = size
+        logger.debug(f'max width={w}px, height={h}px')
         if pad:
             w = w + pad
             h = h + pad
+        logger.debug(f'globbing for files {expr}')
         for f in glob.glob(expr):
             im = Image.open(f)
             im_ = im.convert('L')
@@ -117,10 +119,14 @@ class Snapshotter(object):
         maxbb = (0,0)
         logger.info('_maxsize glob expression: %s', expr)
         for f in glob.glob(expr):
+            logger.debug(f'finding bounding box of {f}')
             im = Image.open(f)
             im_ = im.convert('L')
             im_ = im_.point(lambda p: p > 20 and 255)
             bbox = im_.getbbox()
+            if not bbox:
+                logger.debug(f'bounding box for {f} is None, continuing to next image')
+                continue
             w,h = bbox[2] - bbox[0], bbox[3] - bbox[1]
             area = w * h
             if area > maxarea:
@@ -144,11 +150,13 @@ class Snapshotter(object):
             with open(fo.name) as f:
                 print(f.read())
             fo.flush()
-            cmd = [
-                self.xvfb,
+            cmd = list()
+            if self.headless:
+                cmd.append(self.xvfb)
+            cmd.extend([
                 'freeview',
                 '-cmd', fo.name
-            ]
+            ])
             logger.info(sp.list2cmdline(cmd))
             self.check_output(cmd)
         for f in verify:
@@ -376,13 +384,13 @@ class Snapshotter(object):
         dat = nimg.get_fdata()
         start = 0
         stop = nimg.shape[axis] - 1
-        logger.debug('find top boundary')
+        logger.debug(f'finding top boundary of {img}')
         for i in range(0, nimg.shape[axis] - 1):
             frame = dat.take(i, axis=axis)
             if np.count_nonzero(frame) > threshold[0]:
                 start = i
                 break
-        logger.debug('find bottom boundary')
+        logger.debug(f'finding bottom boundary of {img}')
         dat = np.flip(dat, axis=axis)
         for i in range(0, nimg.shape[axis] - 1):
             frame = dat.take(i, axis=axis)
