@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import numpy as np
 import matplotlib.pyplot as plt
 
 logger = logging.getLogger(__name__)
@@ -78,9 +79,13 @@ class Laterality(object):
             rh_aparc = json.load(fo)
         x,y = [],[]
         for region in Laterality.APARC_REGIONS:
-            x.append(float(lh_aparc['data'][region]['ThickAvg']))
-            y.append(float(rh_aparc['data'][region]['ThickAvg']))
-        plt.plot(x, y, '.')
+            lh_value = lh_aparc['data'].get(region, {}).get('ThickAvg', 0)
+            rh_value = rh_aparc['data'].get(region, {}).get('ThickAvg', 0)
+            x.append(float(lh_value))
+            y.append(float(rh_value))
+        x,y = np.array(x), np.array(y)
+        colors = np.where(np.logical_or(x == 0, y == 0), 'r', '#1f77b4')
+        plt.scatter(x, y, marker='.', color=colors.ravel())
         ax = plt.gca()
         ax.plot([0, 1], [0, 1], transform=ax.transAxes, linewidth=1, color='grey', linestyle='dashed')
         plt.title('Cortical Laterality')
